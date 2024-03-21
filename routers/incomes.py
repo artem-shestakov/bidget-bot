@@ -18,6 +18,7 @@ async def get_incomes(message: Message, bot: Bot):
 
 @router.callback_query(F.data == "__add_income")
 async def add_income(callback_query: CallbackQuery, state: FSMContext):
+    await callback_query.answer()
     await callback_query.message.answer("""
 Я помогу создать источник дохода 💶.
 Для этого ввидите его <b>название</b> и/или <b>плановый доход</b> через пробел.
@@ -32,7 +33,7 @@ async def add_income(callback_query: CallbackQuery, state: FSMContext):
 
     await state.set_state(CreateIncomeState.create_income)
 
-# @router.message(F)
-# async def create_income(message: Message, state: FSMContext):
-#     print(message.text)
-#     pass
+@router.message(CreateIncomeState.create_income)
+async def create_income(message: Message, state: FSMContext):
+    print(message.text)
+    pass

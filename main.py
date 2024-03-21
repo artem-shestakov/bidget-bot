@@ -6,8 +6,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.filters import Command, JOIN_TRANSITION
 from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter
-# from dotenv import load_dotenv
-# from handlers.incomes import get_incomes, add_income, create_income
+from core.config import BOT_TOKEN
 from routers import router
 from routers.start import start_cmd, join_to_group
 from states.incomes import CreateIncomeState
@@ -15,10 +14,10 @@ from utils.commands import set_commands
 
 
 # load_dotenv()
-token = os.getenv('BOT_TOKEN')
+
 default = DefaultBotProperties(parse_mode='html')
 
-bot = Bot(token, default=default)
+bot = Bot(BOT_TOKEN, default=default)
 dp = Dispatcher()
 dp.include_router(router)
 
