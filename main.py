@@ -4,29 +4,29 @@ import os
 import sys
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.bot import DefaultBotProperties
-from aiogram.filters import Command, JOIN_TRANSITION
-from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter
-# from dotenv import load_dotenv
-from handlers.init import start_init
-from handlers.start import start_cmd, join_to_group
+from core.config import BOT_TOKEN
+from core.database import database
+from models import Base
+from routers import router
+from routers.start import start_cmd, join_to_group
+from states.incomes import CreateIncomeState
 from utils.commands import set_commands
+from middleware import DBSessionMiddleware
 
 
-# load_dotenv()
-token = os.getenv('BOT_TOKEN')
+async def db_init():
+    async with database.engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
 default = DefaultBotProperties(parse_mode='html')
 
-bot = Bot(token, default=default)
+bot = Bot(BOT_TOKEN, default=default)
 dp = Dispatcher()
-
-# Start
-dp.message.register(start_cmd, Command(commands="start"))
-dp.my_chat_member.register(join_to_group, ChatMemberUpdatedFilter(JOIN_TRANSITION))
-
-# Init budget
-dp.message.register(start_init, F.text=="🚀 Начать")
+dp.include_router(router)
+dp.startup.register(db_init)
 
 async def run():
+    dp.update.middleware(DBSessionMiddleware(database.sessions_factory))
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     await set_commands(bot)
     try:
