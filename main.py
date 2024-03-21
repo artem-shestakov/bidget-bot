@@ -7,19 +7,24 @@ from aiogram.client.bot import DefaultBotProperties
 from aiogram.filters import Command, JOIN_TRANSITION
 from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter
 from core.config import BOT_TOKEN
+from core.database import database
+from core.models import Base
 from routers import router
 from routers.start import start_cmd, join_to_group
 from states.incomes import CreateIncomeState
 from utils.commands import set_commands
 
 
-# load_dotenv()
+async def db_init():
+    async with database.engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 default = DefaultBotProperties(parse_mode='html')
 
 bot = Bot(BOT_TOKEN, default=default)
 dp = Dispatcher()
 dp.include_router(router)
+dp.startup.register(db_init)
 
 # Start
 dp.message.register(start_cmd, Command(commands="start"))
