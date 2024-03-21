@@ -4,15 +4,14 @@ import os
 import sys
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.bot import DefaultBotProperties
-from aiogram.filters import Command, JOIN_TRANSITION
-from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter
 from core.config import BOT_TOKEN
 from core.database import database
-from core.models import Base
+from models import Base
 from routers import router
 from routers.start import start_cmd, join_to_group
 from states.incomes import CreateIncomeState
 from utils.commands import set_commands
+from middleware import DBSessionMiddleware
 
 
 async def db_init():
@@ -26,16 +25,8 @@ dp = Dispatcher()
 dp.include_router(router)
 dp.startup.register(db_init)
 
-# Start
-dp.message.register(start_cmd, Command(commands="start"))
-dp.my_chat_member.register(join_to_group, ChatMemberUpdatedFilter(JOIN_TRANSITION))
-
-# Income
-# dp.message.register(get_incomes, Command(commands="incomes")
-# dp.message.register(add_income, CreateIncomeState.income_name)
-# dp.message.register(create_income, CreateIncomeState.create_income)
-
 async def run():
+    dp.update.middleware(DBSessionMiddleware(database.sessions_factory))
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     await set_commands(bot)
     try:

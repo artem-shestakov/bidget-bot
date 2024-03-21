@@ -9,11 +9,12 @@ from states.incomes import CreateIncomeState
 router = Router(name=__name__)
 
 @router.message(Command("incomes"))
-async def get_incomes(message: Message, bot: Bot):
+async def get_incomes(message: Message, bot: Bot, counter):
     await bot.send_message(
         message.chat.id,
         "Ваши источники дохода:",reply_markup=incomes_kb
     )
+    print(counter)
     pass
 
 @router.callback_query(F.data == "__add_income")
