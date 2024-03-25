@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.budget import crud
 from aiogram.filters import Command, JOIN_TRANSITION
 from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter
+from sqlalchemy.exc import IntegrityError
 
 router = Router(name=__name__)
 
