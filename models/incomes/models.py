@@ -1,6 +1,6 @@
 from ..base import Base
 from sqlalchemy import ForeignKey, BigInteger
-from sqlalchemy.orm import Mapped, relationship, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class Income(Base):
