@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 # from keyboards.incomes import incomes_kb
 from states.incomes import CreateIncomeState
 from models.budget import crud as budget_crud
-from models.incomes import crud as incomes_crud, Income
+from models.incomes import crud as incomes_crud, Income, IncomeCallback
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -19,7 +19,7 @@ async def get_incomes(message: Message, bot: Bot, session: AsyncSession):
     incomes = await incomes_crud.get_incomes(session, message.chat.id)
 
     # Create keyboard buttons
-    inline_kb = [[InlineKeyboardButton(text=income.title, callback_data=f"__income_{income.id}")] for income in incomes]
+    inline_kb = [[InlineKeyboardButton(text=income.title, callback_data=IncomeCallback(id=income.id, title=income.title).pack())] for income in incomes]
     inline_kb.append(
         [
             InlineKeyboardButton(
@@ -74,3 +74,4 @@ async def create_income(message: Message, state: FSMContext, session: AsyncSessi
     # Create income
     income.budget_id = budget.id
     await incomes_crud.create_income(session, income)
+    await state.clear()
