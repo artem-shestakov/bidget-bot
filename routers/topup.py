@@ -19,9 +19,7 @@ router = Router(name=__name__)
 async def start_top_up(message: Message, bot: Bot, state: FSMContext, session: AsyncSession):
     m = re.search(r"^\+(\d+)(.*)?", message.text)
     print(m.group(1), m.group(2))
-    
-    # Empty keyboard
-    incomes_kb = InlineKeyboardMarkup(inline_keyboard=[])
+
     # Get all incomes
     incomes = await incomes_crud.get_incomes(session, message.chat.id)
 
