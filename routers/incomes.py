@@ -2,6 +2,8 @@ from aiogram import Bot, Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 # from keyboards.incomes import incomes_kb
 from states.incomes import CreateIncomeState
 from models.budget import crud as budget_crud
@@ -19,22 +21,22 @@ async def get_incomes(message: Message, bot: Bot, session: AsyncSession):
     incomes = await incomes_crud.get_incomes(session, message.chat.id)
 
     # Create keyboard buttons
-    inline_kb = [[InlineKeyboardButton(text=income.title, callback_data=IncomeCallback(id=income.id, title=income.title).pack())] for income in incomes]
-    inline_kb.append(
-        [
-            InlineKeyboardButton(
-                text="Добавить",
-                callback_data="__add_income")
-        ]
+    builder= InlineKeyboardBuilder()
+    for income in incomes:
+        builder.button(
+            text=income.title,
+            callback_data=IncomeCallback(id=income.id, title=income.title)
+        )
+    builder.button(
+        text="Добавить",
+        callback_data="__add_income"
     )
-
-    # Add buttons to keyboard
-    incomes_kb.inline_keyboard = inline_kb
+    builder.adjust(1)
 
     # Send incomes
     await bot.send_message(
         message.chat.id,
-        "Ваши источники дохода:",reply_markup=incomes_kb
+        "Ваши источники дохода:",reply_markup=builder.as_markup()
     )
 
 @router.callback_query(F.data == "__add_income")

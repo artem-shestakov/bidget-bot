@@ -1,6 +1,8 @@
 from aiogram import Bot, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 from models.incomes import crud as incomes_crud, IncomeCallback
 from models.transactions import crud as transaction_crud, Topup
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,17 +26,23 @@ async def start_top_up(message: Message, bot: Bot, state: FSMContext, session: A
     incomes = await incomes_crud.get_incomes(session, message.chat.id)
 
     # Create keyboard buttons and add to keyboard
-    inline_kb = [[InlineKeyboardButton(text=income.title, callback_data=IncomeCallback(id=income.id, title=income.title).pack())] for income in incomes]
-    incomes_kb.inline_keyboard = inline_kb
+    builder = InlineKeyboardBuilder()
+    for income in incomes:
+        builder.button(
+            text=income.title,
+            callback_data=IncomeCallback(id=income.id, title=income.title).pack()
+        )
+    builder.adjust(1)
 
     # Send incomes
     await bot.send_message(
         message.chat.id,
-        "Выберете источник дохода",reply_markup=incomes_kb
+        "Выберете источник дохода",reply_markup=builder.as_markup()
     )
     await state.update_data(amount=m.group(1))
     await state.update_data(description=m.group(2).strip())
     await state.set_state(TopUpState.select_income)
+
 
 @router.callback_query(TopUpState.select_income)
 async def create_topup(callback_query: CallbackQuery, bot: Bot, state: FSMContext, session: AsyncSession):
