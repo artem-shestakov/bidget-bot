@@ -44,10 +44,11 @@ async def start_top_up(message: Message, bot: Bot, state: FSMContext, session: A
     await state.set_state(TopUpState.select_income)
 
 
-@router.callback_query(TopUpState.select_income)
-async def create_topup(callback_query: CallbackQuery, bot: Bot, state: FSMContext, session: AsyncSession):
+@router.callback_query(TopUpState.select_income, IncomeCallback.filter())
+async def create_topup(callback_query: CallbackQuery, callback_data: IncomeCallback, state: FSMContext,
+                       session: AsyncSession):
     await callback_query.answer()
     data = await state.get_data()
-    topup = Topup(income_id=int(callback_query.data.split(":")[1]), amount=float(data["amount"]),description=data["description"], date=datetime.datetime.now().strftime('%s'))
+    topup = Topup(income_id=callback_data.id, amount=float(data["amount"]),description=data["description"], date=datetime.datetime.now().strftime('%s'))
     await transaction_crud.create_topup(session, topup)
     await state.clear()
