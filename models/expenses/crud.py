@@ -16,7 +16,7 @@ async def get_expense_category(session: AsyncSession, chat_id: int) -> list[Expe
     expense_categories = result.scalars().all()
     return list(expense_categories)
 
-async def create_income(session: AsyncSession, expense_cat: ExpenseCategory):
+async def create_expense_cat(session: AsyncSession, expense_cat: ExpenseCategory):
     session.add(expense_cat)
     try:
         await session.commit()
