@@ -9,7 +9,11 @@ async def set_commands(bot: Bot):
         ),
         BotCommand(
             command="incomes",
-            description="Запуск бота"
+            description="Источники дохода"
+        ),
+        BotCommand(
+            command="expenses",
+            description="Категории расходов"
         ),
         BotCommand(
             command="help",

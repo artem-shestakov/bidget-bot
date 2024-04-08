@@ -3,26 +3,26 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from models.budget import Budget
-from .models import ExpenseCategory
+from .models import Income
 
 
-async def get_incomes(session: AsyncSession, chat_id: int) -> list[ExpenseCategory]:
+async def get_incomes(session: AsyncSession, chat_id: int) -> list[Income]:
     budget_stm = select(Budget).where(Budget.chat_id == chat_id)
     result: Result = await session.execute(budget_stm)
     budget = result.scalar()
 
-    expense_cat_stm = select(ExpenseCategory).where(ExpenseCategory.budget_id == budget.id).order_by(ExpenseCategory.title)
-    result: Result = await session.execute(expense_cat_stm)
-    products = result.scalars().all()
-    return list(products)
+    income_stm = select(Income).where(Income.budget_id == budget.id).order_by(Income.title)
+    result: Result = await session.execute(income_stm)
+    incomes = result.scalars().all()
+    return list(incomes)
 
 
-async def create_expense_category(session: AsyncSession, expense_cat: ExpenseCategory):
-    session.add(expense_cat)
+async def create_income(session: AsyncSession, income: Income):
+    session.add(income)
     try:
         await session.commit()
     except IntegrityError as exc:
         print(exc)
     except Exception as exc:
         print(exc)
-    return expense_cat
+    return income

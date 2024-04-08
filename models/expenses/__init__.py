@@ -1,1 +1,1 @@
-from .models import Income, IncomeCallback
+from .models import ExpenseCategory, ExpenseCategoryCallback
